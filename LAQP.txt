@@ -1,0 +1,78 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/brownell/Development/cabrillo
+plugins: cov-7.1.0
+collected 40 items
+
+tests/test_cabrillo.py .....                                             [ 12%]
+tests/test_parser_log.py .....F...........                               [ 55%]
+tests/test_parser_qso.py .........                                       [ 77%]
+tests/test_qso.py .........                                              [100%]
+
+=================================== FAILURES ===================================
+_______________________________ test_parse_laqp ________________________________
+
+    def test_parse_laqp():
+        # Non-standard mode CW/Digital
+        with pytest.raises(InvalidQSOException):
+>           parse_log_file('tests/LAQP.log')
+
+tests/test_parser_log.py:194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+cabrillo/parser.py:203: in parse_log_file
+    return parse_log_text(f.read(), ignore_unknown_key, check_categories,
+cabrillo/parser.py:174: in parse_log_text
+    return Cabrillo(check_categories=check_categories, ignore_order=ignore_order, **results)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <cabrillo.cabrillo.Cabrillo object at 0x7423e8c2d790>
+check_categories = True, ignore_order = False
+d = {'x_anything': OrderedDict({'X-CONTEST': 'LA-QSO-PARTY', 'X-CATEGORY-STATION': 'FIXED', 'X-CATEGORY-POWER': 'LOW', 'X-..., 'HQ-QUESTIONS': 'Pwr: LOW, Mode: PH, Overlay: WIRES, Station: F'}), 'version': '3.0', 'contest': 'LA-QSO-PARTY', ...}
+
+    def __init__(self, check_categories=True, ignore_order=False, **d):
+        """Construct a Cabrillo object.
+    
+        Use named arguments only.
+    
+        Attributes:
+            check_categories: Check if categories, if given, exist in the
+            Cabrillo specification.
+            See class attributes for other parameters.
+    
+        Raises:
+            InvalidLogException
+        """
+        d.setdefault('created_by', 'cabrillo (Python)')
+        for key in data.OUTPUT_KEYWORD_MAP:
+            setattr(self, key, d.get(key, None))
+    
+        self.x_anything = d.get('x_anything', collections.OrderedDict())
+        self.hq_anything = d.get('hq_anything', collections.OrderedDict())
+    
+        version = d.get('version', '3.0')
+        if version != '3.0':
+            raise InvalidLogException("Only Cabrillo v3 supported, "
+                                      "got {}".format(version))
+        else:
+            self.version = version
+    
+        self.qso = []
+        for qso in d.get('qso', []):
+            self.append_qso(qso, ignore_order)
+    
+        self.ignore_order = ignore_order
+    
+        if check_categories:
+            for attribute, candidates in data.VALID_CATEGORIES_MAP.items():
+                value = getattr(self, attribute, None)
+                if value and value not in candidates:
+>                   raise InvalidLogException(
+                        'Got {} for {} but expecting one of {}.'.format(
+                            value, attribute, candidates))
+E                   cabrillo.errors.InvalidLogException: Got WIRES for category_overlay but expecting one of ['CLASSIC', 'ROOKIE', 'TB-WIRES', 'YOUTH', 'NOVICE-TECH', 'OVER-50', 'YL'].
+
+cabrillo/cabrillo.py:92: InvalidLogException
+=========================== short test summary info ============================
+FAILED tests/test_parser_log.py::test_parse_laqp - cabrillo.errors.InvalidLog...
+========================= 1 failed, 39 passed in 0.13s =========================

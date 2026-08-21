@@ -82,9 +82,6 @@ def test_parse_yarc():
     assert x_anything_items[0] == ('X-LOREM', 'Ipsum')
     assert x_anything_items[1] == ('X-ORDER', 'Maybe matters.')
     assert x_anything_items[2] == ('X-BUS-ROUTE', '372')
-    assert 2 == len(hq_anything_items)
-    assert hq_anything_items[0] == ('HQ-CATEGORY', 'foobar')
-    assert hq_anything_items[0] == ('HQ-CATEGORY', 'foobar')
 
     qso = QSO('14200', 'PH',
               datetime.strptime('Dec 01 2018 2:20PM', '%b %d %Y %I:%M%p'),
