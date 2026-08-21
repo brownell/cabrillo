@@ -63,14 +63,14 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True,
                    ignore_order=False, check_mode=True):
     """Parse a Cabrillo log in text form.
 
-    Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
-    attributes will be sorted into the x_anything attribute of the Cabrillo
-    object.
+    Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly.
+    X- and HQ-  attributes will be sorted into the x_anything and
+    hq_anything attribute of the Cabrillo object.
 
     Arguments:
         text: str of log
         ignore_unknown_key: Boolean denoting whether if unknown and non X-
-            attributes should be ignored if found in long. Otherwise,
+            and HQ- attributes should be ignored if found in long. Otherwise,
             an InvalidLogException will be raised. Defaults to False
             (which enforces valid keywords).
         check_categories: Check if categories, if given, exist in the
@@ -87,6 +87,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True,
     inverse_keywords = {v: k for k, v in KEYWORD_MAP.items()}
     results = dict()
     results['x_anything'] = collections.OrderedDict()
+    results['hq_anything'] = collections.OrderedDict()
 
     key_colon_value = re.compile(r'^\s*([^:]+?)\s*:\s*(.*?)\s*$')
     for line in text.split('\n'):
@@ -162,6 +163,11 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True,
             if not value.strip():
                 continue
             results['x_anything'][key] = value
+        elif key.startswith('HQ-'):
+            # We keep the order that we were given.
+            if not value.strip():
+                continue
+            results['hq_anything'][key] = value
         elif not ignore_unknown_key:
             raise InvalidLogException("Unknown key {} read.".format(key))
 
@@ -173,8 +179,8 @@ def parse_log_file(filename, ignore_unknown_key=False, check_categories=True,
     """Parse a Cabrillo log file.
 
         Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
-        attributes will be sorted into the x_anything attribute of the Cabrillo
-        object.
+        and HQ- attributes will be sorted into the x_anything attribute of the 
+        Cabrillo object.
 
         Arguments:
             filename: filename of the target log file.

@@ -77,10 +77,14 @@ def test_parse_yarc():
     # Check the X-... come out in the order they occure in the file.
     # (This is not demanded by the Cabrillo spec, but seems sensible to do.)
     x_anything_items = list(cab.x_anything.items())
+    hq_anything_items = list(cab.hq_anything.items())
     assert 3 == len(x_anything_items)
     assert x_anything_items[0] == ('X-LOREM', 'Ipsum')
     assert x_anything_items[1] == ('X-ORDER', 'Maybe matters.')
     assert x_anything_items[2] == ('X-BUS-ROUTE', '372')
+    assert 2 == len(hq_anything_items)
+    assert hq_anything_items[0] == ('HQ-CATEGORY', 'foobar')
+    assert hq_anything_items[0] == ('HQ-CATEGORY', 'foobar')
 
     qso = QSO('14200', 'PH',
               datetime.strptime('Dec 01 2018 2:20PM', '%b %d %Y %I:%M%p'),
@@ -94,6 +98,20 @@ def test_parse_yarc():
 
     assert cab.qso[0] == qso
     assert cab.x_qso[0] == x_qso
+
+def test_parse_laqp():
+    """Test a log file from the Louisiana QSO Party."""
+    cab = parse_log_file('tests/LAQP.log')
+    x_anything_items = list(cab.x_anything.items())
+    hq_anything_items = list(cab.hq_anything.items())
+    assert 6 == len(x_anything_items)
+    assert x_anything_items[0] == ('X-CONTEST', 'LA-QSO-PARTY')
+    assert x_anything_items[1] == ('X-STATION', 'FIXED')
+    assert x_anything_items[4] == ('X-MODE', 'SSB')
+    assert 5 == len(hq_anything_items)
+    assert hq_anything_items[0] == ('HQ-CATEGORY', 'FIXED Phone Low')
+    assert hq_anything_items[0] == ('HQ-questions', 'Pwr: LOW, Mode: PH, Overlay: WIRES, Station: F')
+    
 
 
 def test_parse_unknown_keyword():

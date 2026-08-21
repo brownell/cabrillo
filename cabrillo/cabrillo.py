@@ -48,7 +48,8 @@ class Cabrillo:
           qso: List of all QSOs, including ignored QSOs.
           valid_qso: List of all valid QSOs (excluding ignored X-QSO) (read-only).
           x_qso: List of all invalid QSOs (X-QSO only) (read-only).
-          x_anything: An ordered mapping of ignored/unknown attributes.
+          x_anything: An ordered mapping of X- keys in the log.
+          hq_anything: An ordered mapping of HQ- keys in the log.
     """
 
     def __init__(self, check_categories=True, ignore_order=False, **d):
@@ -69,6 +70,7 @@ class Cabrillo:
             setattr(self, key, d.get(key, None))
 
         self.x_anything = d.get('x_anything', collections.OrderedDict())
+        self.hq_anything = d.get('hq_anything', collections.OrderedDict())
 
         version = d.get('version', '3.0')
         if version != '3.0':
@@ -171,8 +173,12 @@ class Cabrillo:
                 elif attribute != 'version':
                     print('{}: {}'.format(keyword, value), file=file)
 
-        # Output ignored attributes.
+        # Output x_anything attributes.
         for attribute, keyword in self.x_anything.items():
+            print('{}: {}'.format(attribute.replace('_', '-'), keyword), file=file)
+
+        # Output hq_anything attributes.
+        for attribute, keyword in self.hq_anything.items():
             print('{}: {}'.format(attribute.replace('_', '-'), keyword), file=file)
 
         # Output QSOs:
