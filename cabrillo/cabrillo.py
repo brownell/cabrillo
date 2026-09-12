@@ -73,11 +73,11 @@ class Cabrillo:
         self.hq_anything = d.get('hq_anything', collections.OrderedDict())
 
         version = d.get('version', '3.0')
-        if version != '3.0':
-            raise InvalidLogException("Only Cabrillo v3 supported, "
-                                      "got {}".format(version))
-        else:
-            self.version = version
+        # if version != '3.0':
+        #     raise InvalidLogException("Only Cabrillo v3 supported, "
+        #                               "got {}".format(version))
+        # else:
+        self.version = version
 
         self.qso = []
         for qso in d.get('qso', []):

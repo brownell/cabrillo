@@ -25,8 +25,10 @@ def parse_qso(text, valid, check_mode=True):
 
     # Requires freq, mo, date, time, 2x calls.
     if len(components) < 8:
-        raise InvalidQSOException('QSO components too little. Expects at '
-                                  'least 6, got {}'.format(len(components)))
+        try:
+            raise InvalidQSOException('QSO components too little. Expects at least 6, got {}'.format(len(components)))
+        except Exception as e:
+            print(f"QSO components too little. Expects at least 6, got {components}")
 
     # Calculate the number of information exchanged.
     num_exchanged = len(components) - 4
@@ -34,8 +36,11 @@ def parse_qso(text, valid, check_mode=True):
     transmitter = None
     if num_exchanged % 2 == 1:
         if components[-1] not in ['0', '1']:
-            raise InvalidQSOException("{} RST/exchanges presented, which is "
+            try:
+                raise InvalidQSOException("{} RST/exchanges presented, which is "
                                       "uneven.".format(num_exchanged))
+            except Exception as e:
+                print(f"{num_exchanged} RST/exchanges presented, which is uneven")
         else:
             num_exchanged -= 1
             transmitter = int(components[-1])
